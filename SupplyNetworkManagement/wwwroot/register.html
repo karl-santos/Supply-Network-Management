@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register Vendor · Supply Network Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --evergreen:       #17301c;
+      --muted-teal:      #83b692;
+      --midnight-violet: #310a31;
+      --thistle:         #d6c3c9;
+      --twilight-indigo: #414066;
+      --bg:              #f7f5f2;
+      --surface:         #ffffff;
+      --text:            #1a1a1a;
+      --text-muted:      #6b7280;
+      --border:          #e2ddd8;
+      --error:           #c0392b;
+      --success:         #17301c;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--evergreen);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,.25);
+    }
+
+    .logo { display: flex; align-items: center; gap: .75rem; text-decoration: none; }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--muted-teal); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .logo-text { font-family: 'DM Serif Display', serif; font-size: 1.15rem; color: #fff; }
+
+    nav { display: flex; gap: .25rem; align-items: center; }
+    nav a {
+      color: rgba(255,255,255,.75);
+      text-decoration: none; font-size: .875rem; font-weight: 500;
+      padding: .45rem .9rem; border-radius: 6px;
+      transition: color .2s, background .2s;
+    }
+    nav a:hover { color: #fff; background: rgba(255,255,255,.1); }
+    nav a.active { color: #fff; background: rgba(255,255,255,.12); }
+
+    /* ── PAGE WRAPPER ── */
+    .page {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 3rem 1.5rem 4rem;
+      gap: 3rem;
+    }
+
+    /* ── SIDE PANEL ── */
+    .side-panel {
+      width: 300px;
+      flex-shrink: 0;
+      padding-top: .5rem;
+    }
+
+    .side-panel h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem; line-height: 1.2;
+      color: var(--evergreen);
+      margin-bottom: .75rem;
+    }
+
+    .side-panel h1 em { font-style: italic; color: var(--twilight-indigo); }
+
+    .side-panel p {
+      font-size: .9rem; line-height: 1.65;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: .65rem; }
+    .checklist li {
+      display: flex; align-items: flex-start; gap: .65rem;
+      font-size: .875rem; color: var(--text);
+    }
+    .check-icon {
+      width: 22px; height: 22px; flex-shrink: 0;
+      background: rgba(131,182,146,.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--evergreen);
+      margin-top: 1px;
+    }
+
+    .divider {
+      width: 48px; height: 3px;
+      background: var(--muted-teal);
+      border-radius: 2px;
+      margin: 2rem 0;
+    }
+
+    .login-prompt {
+      font-size: .85rem;
+      color: var(--text-muted);
+    }
+    .login-prompt a { color: var(--twilight-indigo); font-weight: 600; text-decoration: none; }
+    .login-prompt a:hover { text-decoration: underline; }
+
+    /* ── CARD ── */
+    .form-card {
+      background: var(--surface);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.07);
+      animation: slideUp .5s ease both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      display: flex; align-items: center; gap: .85rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-badge {
+      width: 42px; height: 42px;
+      background: var(--evergreen); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .card-header h2 { font-family: 'DM Serif Display', serif; font-size: 1.35rem; color: var(--evergreen); }
+    .card-header p  { font-size: .8rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── FIELDS ── */
+    .field-group { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .field { display: flex; flex-direction: column; gap: .45rem; }
+
+    label {
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      color: var(--twilight-indigo);
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      font-size: 15px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"] {
+      width: 100%;
+      padding: .75rem .9rem .75rem 2.65rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .925rem;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      transition: border-color .2s, box-shadow .2s, background .2s;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--muted-teal);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(131,182,146,.18);
+    }
+
+    input.invalid {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(192,57,43,.12);
+    }
+
+    .field-error {
+      font-size: .78rem;
+      color: var(--error);
+      min-height: 1.1rem;
+      display: flex; align-items: center; gap: .3rem;
+    }
+
+    .password-toggle {
+      position: absolute; right: 12px;
+      background: none; border: none;
+      cursor: pointer; font-size: 14px;
+      color: var(--text-muted);
+      padding: 4px;
+      transition: color .2s;
+    }
+    .password-toggle:hover { color: var(--evergreen); }
+
+    /* ── SUBMIT ── */
+    .submit-row {
+      margin-top: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: .85rem;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: .9rem;
+      background: var(--muted-teal);
+      color: var(--evergreen);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; font-weight: 600;
+      border: none; border-radius: 10px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      transition: background .2s, transform .15s, box-shadow .2s;
+    }
+    .btn-submit:hover:not(:disabled) {
+      background: #96c5a3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 18px rgba(131,182,146,.35);
+    }
+    .btn-submit:disabled {
+      opacity: .6; cursor: not-allowed;
+    }
+
+    /* ── SPINNER ── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(23,48,28,.25);
+      border-top-color: var(--evergreen);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-label { display: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TOAST / BANNER ── */
+    .banner {
+      display: none;
+      border-radius: 10px;
+      padding: .9rem 1.1rem;
+      font-size: .875rem;
+      font-weight: 500;
+      align-items: center; gap: .6rem;
+    }
+    .banner.show { display: flex; }
+    .banner.success {
+      background: rgba(131,182,146,.18);
+      border: 1px solid rgba(131,182,146,.4);
+      color: var(--success);
+    }
+    .banner.error {
+      background: rgba(192,57,43,.08);
+      border: 1px solid rgba(192,57,43,.25);
+      color: var(--error);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--evergreen);
+      padding: 1.25rem 2rem;
+      text-align: center;
+      color: rgba(255,255,255,.4); font-size: .8rem;
+    }
+    footer a { color: var(--muted-teal); text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 760px) {
+      .page { flex-direction: column; align-items: center; padding: 2rem 1rem; }
+      .side-panel { width: 100%; max-width: 500px; padding-top: 0; }
+      nav a:not(.mobile-show) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="/">
+      <div class="logo-icon">🌿</div>
+      <span class="logo-text">SupplyNet</span>
+    </a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/vendors.html">Vendors</a>
+      <a href="/login.html">Login</a>
+      <a href="/register.html" class="active mobile-show">Register</a>
+    </nav>
+  </header>
+
+  <div class="page">
+
+    <!-- Side info panel -->
+    <aside class="side-panel">
+      <h1>Join the <em>network</em></h1>
+      <p>Register your vendor account to start receiving orders, tracking deliveries, and managing your supply relationships.</p>
+
+      <ul class="checklist">
+        <li><span class="check-icon">✓</span><span>Instant account creation — no waiting period</span></li>
+        <li><span class="check-icon">✓</span><span>Secure login with email &amp; password</span></li>
+        <li><span class="check-icon">✓</span><span>Full visibility into your delivery schedule</span></li>
+        <li><span class="check-icon">✓</span><span>Integrated with the Supply Network REST API</span></li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <p class="login-prompt">Already registered? <a href="/login.html">Sign in to your account →</a></p>
+    </aside>
+
+    <!-- Registration form card -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-badge">🏪</div>
+        <div>
+          <h2>Vendor Registration</h2>
+          <p>Fill in the details below to create your account</p>
+        </div>
+      </div>
+
+      <!-- Status banner -->
+      <div class="banner" id="statusBanner"></div>
+
+      <div class="field-group" id="fieldGroup">
+
+        <!-- Vendor Name -->
+        <div class="field">
+          <label for="vendorName">Vendor Name</label>
+          <div class="input-wrap">
+            <span class="input-icon">🏪</span>
+            <input
+              type="text"
+              id="vendorName"
+              placeholder="e.g. Green Valley Farms"
+              autocomplete="organization"
+            />
+          </div>
+          <span class="field-error" id="vendorNameErr"></span>
+        </div>
+
+        <!-- Phone -->
+        <div class="field">
+          <label for="phoneNumber">Phone Number</label>
+          <div class="input-wrap">
+            <span class="input-icon">📞</span>
+            <input
+              type="tel"
+              id="phoneNumber"
+              placeholder="e.g. (555) 867-5309"
+              autocomplete="tel"
+            />
+          </div>
+          <span class="field-error" id="phoneNumberErr"></span>
+        </div>
+
+        <!-- Email -->
+        <div class="field">
+          <label for="email">Email Address</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉️</span>
+            <input
+              type="email"
+              id="email"
+              placeholder="e.g. vendor@example.com"
+              autocomplete="email"
+            />
+          </div>
+          <span class="field-error" id="emailErr"></span>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input
+              type="password"
+              id="password"
+              placeholder="Create a secure password"
+              autocomplete="new-password"
+            />
+            <button class="password-toggle" type="button" id="togglePwd" aria-label="Toggle password visibility">👁️</button>
+          </div>
+          <span class="field-error" id="passwordErr"></span>
+        </div>
+
+      </div><!-- /field-group -->
+
+      <div class="submit-row">
+        <div class="banner" id="globalBanner"></div>
+        <button class="btn-submit" id="submitBtn" type="button">
+          <span class="btn-label">Create Vendor Account</span>
+          <div class="spinner"></div>
+        </button>
+      </div>
+    </div><!-- /form-card -->
+
+  </div><!-- /page -->
+
+  <footer>
+    Supply Network Management &nbsp;·&nbsp; <a href="/login.html">Vendor Login</a> &nbsp;·&nbsp; <a href="/vendors.html">View Vendors</a>
+  </footer>
+
+  <script>
+    const API_BASE = '';  // Empty = same origin. Change to 'https://localhost:7287' if needed.
+
+    // ── Helpers ──────────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+
+    function setError(fieldId, msg) {
+      const el = $(fieldId + 'Err');
+      const input = $(fieldId);
+      if (el) { el.textContent = msg ? '⚠ ' + msg : ''; }
+      if (input) {
+        input.classList.toggle('invalid', !!msg);
+      }
+    }
+
+    function clearErrors() {
+      ['vendorName','phoneNumber','email','password'].forEach(f => setError(f, ''));
+    }
+
+    function showGlobalBanner(msg, type = 'error') {
+      const b = $('globalBanner');
+      b.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+      b.className = 'banner ' + type + ' show';
+    }
+
+    function hideGlobalBanner() {
+      $('globalBanner').className = 'banner';
+    }
+
+    function setLoading(loading) {
+      const btn = $('submitBtn');
+      btn.disabled = loading;
+      btn.classList.toggle('loading', loading);
+    }
+
+    // ── Validation ───────────────────────────────────────────────
+    function validate() {
+      let ok = true;
+      const name  = $('vendorName').value.trim();
+      const phone = $('phoneNumber').value.trim();
+      const email = $('email').value.trim();
+      const pwd   = $('password').value;
+
+      if (!name) { setError('vendorName', 'Vendor name is required'); ok = false; }
+      if (!phone) { setError('phoneNumber', 'Phone number is required'); ok = false; }
+      if (!email) {
+        setError('email', 'Email is required'); ok = false;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setError('email', 'Please enter a valid email address'); ok = false;
+      }
+      if (!pwd) {
+        setError('password', 'Password is required'); ok = false;
+      } else if (pwd.length < 6) {
+        setError('password', 'Password must be at least 6 characters'); ok = false;
+      }
+
+      return ok;
+    }
+
+    // ── Submit ───────────────────────────────────────────────────
+    async function handleRegister() {
+      clearErrors();
+      hideGlobalBanner();
+
+      if (!validate()) return;
+
+      const payload = {
+        vendorName:  $('vendorName').value.trim(),
+        phoneNumber: $('phoneNumber').value.trim(),
+        email:       $('email').value.trim(),
+        password:    $('password').value,
+      };
+
+      setLoading(true);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/Vendor`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok || res.status === 204) {
+          // Success
+          $('fieldGroup').style.display = 'none';
+          $('submitBtn').style.display = 'none';
+          showGlobalBanner(
+            `Account created for "${payload.vendorName}"! You can now log in.`,
+            'success'
+          );
+          // Optionally redirect after a short delay
+          setTimeout(() => { window.location.href = '/login.html'; }, 3000);
+        } else {
+          const text = await res.text().catch(() => '');
+          showGlobalBanner(text || `Server error (${res.status}). Please try again.`);
+        }
+      } catch (err) {
+        showGlobalBanner('Could not connect to the server. Is the API running?');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // ── Event listeners ──────────────────────────────────────────
+    $('submitBtn').addEventListener('click', handleRegister);
+
+    // Dismiss field errors on input
+    ['vendorName','phoneNumber','email','password'].forEach(id => {
+      $(id).addEventListener('input', () => setError(id, ''));
+    });
+
+    // Enter key submits
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') handleRegister(); });
+    });
+
+    // Password toggle
+    $('togglePwd').addEventListener('click', () => {
+      const inp = $('password');
+      const isText = inp.type === 'text';
+      inp.type = isText ? 'password' : 'text';
+      $('togglePwd').textContent = isText ? '👁️' : '🙈';
+    });
+  </script>
+
+</body>
+</html>

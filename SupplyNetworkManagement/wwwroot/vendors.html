@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vendors · Supply Network Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --evergreen:       #17301c;
+      --muted-teal:      #83b692;
+      --midnight-violet: #310a31;
+      --thistle:         #d6c3c9;
+      --twilight-indigo: #414066;
+      --bg:              #f7f5f2;
+      --surface:         #ffffff;
+      --text:            #1a1a1a;
+      --text-muted:      #6b7280;
+      --border:          #e2ddd8;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      background: var(--evergreen); padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px; position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,.25);
+    }
+    .logo { display: flex; align-items: center; gap: .75rem; text-decoration: none; }
+    .logo-icon { width: 32px; height: 32px; background: var(--muted-teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .logo-text { font-family: 'DM Serif Display', serif; font-size: 1.15rem; color: #fff; }
+    nav { display: flex; gap: .25rem; align-items: center; }
+    nav a { color: rgba(255,255,255,.75); text-decoration: none; font-size: .875rem; font-weight: 500; padding: .45rem .9rem; border-radius: 6px; transition: color .2s, background .2s; }
+    nav a:hover { color: #fff; background: rgba(255,255,255,.1); }
+    nav a.active { color: #fff; background: rgba(255,255,255,.12); }
+    nav a.cta { background: var(--muted-teal); color: var(--evergreen); font-weight: 600; margin-left: .5rem; }
+    nav a.cta:hover { background: #96c5a3; }
+
+    .page-header {
+      background: var(--evergreen);
+      padding: 2.5rem 2rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 1.85rem; color: #fff; }
+    .page-header p  { color: rgba(255,255,255,.6); font-size: .875rem; margin-top: .25rem; }
+    .page-header a.btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: var(--muted-teal); color: var(--evergreen);
+      font-family: 'DM Sans', sans-serif; font-size: .875rem; font-weight: 600;
+      padding: .65rem 1.4rem; border-radius: 9px; text-decoration: none;
+      transition: background .2s, transform .15s;
+    }
+    .page-header a.btn:hover { background: #96c5a3; transform: translateY(-1px); }
+
+    .content { flex: 1; padding: 2.5rem 2rem; max-width: 1060px; margin: 0 auto; width: 100%; }
+
+    /* Search / filter bar */
+    .toolbar {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.75rem; flex-wrap: wrap;
+    }
+    .search-wrap { position: relative; flex: 1; min-width: 220px; }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-muted); pointer-events: none; }
+    .search-wrap input {
+      width: 100%; padding: .65rem .9rem .65rem 2.4rem;
+      font-family: 'DM Sans', sans-serif; font-size: .875rem;
+      border: 1.5px solid var(--border); border-radius: 9px;
+      background: var(--surface); color: var(--text);
+      outline: none; transition: border-color .2s, box-shadow .2s;
+    }
+    .search-wrap input:focus { border-color: var(--muted-teal); box-shadow: 0 0 0 3px rgba(131,182,146,.18); }
+
+    .count-badge {
+      background: var(--thistle);
+      color: var(--midnight-violet);
+      font-size: .78rem; font-weight: 600;
+      padding: .35rem .75rem; border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* Table */
+    .table-card {
+      background: var(--surface);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,.05);
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--evergreen); }
+    thead th {
+      padding: .85rem 1.25rem;
+      text-align: left;
+      font-size: .75rem; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: rgba(255,255,255,.75);
+    }
+    thead th:first-child { color: rgba(255,255,255,.4); width: 60px; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(131,182,146,.07); }
+
+    tbody td { padding: 1rem 1.25rem; font-size: .9rem; vertical-align: middle; }
+    tbody td:first-child { color: var(--text-muted); font-size: .8rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    .vendor-avatar {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: var(--midnight-violet);
+      color: var(--thistle);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700;
+      letter-spacing: .02em;
+      margin-right: .65rem;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+
+    .vendor-name { font-weight: 600; color: var(--evergreen); }
+    .vendor-email { font-size: .8rem; color: var(--text-muted); margin-top: 2px; }
+
+    .phone-chip {
+      display: inline-flex; align-items: center; gap: .3rem;
+      background: rgba(65,64,102,.1);
+      color: var(--twilight-indigo);
+      font-size: .8rem; font-weight: 500;
+      padding: .3rem .65rem; border-radius: 6px;
+    }
+
+    /* States */
+    .state-loading, .state-empty, .state-error {
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+    .state-loading .spinner-lg {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--muted-teal);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .state-empty .empty-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+    .state-empty h3 { font-size: 1rem; font-weight: 600; color: var(--evergreen); margin-bottom: .35rem; }
+    .state-error { color: #c0392b; }
+
+    footer { background: var(--evergreen); padding: 1.25rem 2rem; text-align: center; color: rgba(255,255,255,.4); font-size: .8rem; }
+    footer a { color: var(--muted-teal); text-decoration: none; }
+
+    @media (max-width: 600px) {
+      thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
+      nav a:not(.mobile-show) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="/">
+      <div class="logo-icon">🌿</div>
+      <span class="logo-text">SupplyNet</span>
+    </a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/vendors.html" class="active mobile-show">Vendors</a>
+      <a href="/login.html">Login</a>
+      <a href="/register.html" class="cta">Register</a>
+    </nav>
+  </header>
+
+  <div class="page-header">
+    <div>
+      <h1>Vendor Registry</h1>
+      <p>All registered vendors in the supply network</p>
+    </div>
+    <a href="/register.html" class="btn">➕ Add Vendor</a>
+  </div>
+
+  <div class="content">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search vendors by name, email, or phone…"/>
+      </div>
+      <span class="count-badge" id="countBadge">Loading…</span>
+    </div>
+
+    <div class="table-card" id="tableWrap">
+      <div class="state-loading">
+        <div class="spinner-lg"></div>
+        <p>Fetching vendors…</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Supply Network Management &nbsp;·&nbsp; <a href="/register.html">Register Vendor</a>
+  </footer>
+
+  <script>
+    const API_BASE = '';
+    let allVendors = [];
+
+    function getInitials(name) {
+      return name.split(' ').slice(0,2).map(w => w[0] || '').join('').toUpperCase() || '?';
+    }
+
+    function renderTable(vendors) {
+      const wrap = document.getElementById('tableWrap');
+      const badge = document.getElementById('countBadge');
+      badge.textContent = `${vendors.length} vendor${vendors.length !== 1 ? 's' : ''}`;
+
+      if (vendors.length === 0) {
+        wrap.innerHTML = `
+          <div class="state-empty">
+            <div class="empty-icon">🏪</div>
+            <h3>No vendors found</h3>
+            <p>Try a different search, or <a href="/register.html" style="color:var(--muted-teal);font-weight:600">register the first vendor</a>.</p>
+          </div>`;
+        return;
+      }
+
+      const rows = vendors.map(v => `
+        <tr>
+          <td>#${v.vendorId}</td>
+          <td>
+            <span class="vendor-avatar">${getInitials(v.vendorName)}</span>
+            <span style="vertical-align:middle">
+              <div class="vendor-name">${escHtml(v.vendorName)}</div>
+              <div class="vendor-email">${escHtml(v.email || '—')}</div>
+            </span>
+          </td>
+          <td><span class="phone-chip">📞 ${escHtml(v.phoneNumber || '—')}</span></td>
+        </tr>`).join('');
+
+      wrap.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Vendor</th>
+              <th>Phone</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function loadVendors() {
+      try {
+        const res = await fetch(`${API_BASE}/api/Vendor`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        allVendors = await res.json();
+        renderTable(allVendors);
+      } catch (err) {
+        document.getElementById('tableWrap').innerHTML =
+          `<div class="state-error">⚠️ Failed to load vendors: ${err.message}<br><small>Is the API server running?</small></div>`;
+        document.getElementById('countBadge').textContent = 'Error';
+      }
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function() {
+      const q = this.value.toLowerCase();
+      const filtered = allVendors.filter(v =>
+        v.vendorName.toLowerCase().includes(q) ||
+        (v.email || '').toLowerCase().includes(q) ||
+        (v.phoneNumber || '').toLowerCase().includes(q)
+      );
+      renderTable(filtered);
+    });
+
+    loadVendors();
+  </script>
+
+</body>
+</html>
