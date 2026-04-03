@@ -114,7 +114,7 @@ namespace SupplyNetworkManagement.Controllers
             var data = await response.Content.ReadAsStringAsync();
             return Ok(data);
         }
-        
+
         // PATCH /api/catalogue/update/{productId}
         [HttpPatch("update/{productId}")]
         public async Task<IActionResult> UpdateProduct(string productId, [FromBody] UpdateProductRequest request)
@@ -156,6 +156,22 @@ namespace SupplyNetworkManagement.Controllers
                 return StatusCode(502, new { status = "error", message = "Failed to update in Inventory Intelligence" });
 
             return Ok(new { status = "success", message = "Product updated successfully" });
+        }
+
+        // DELETE /api/catalogue/remove/{productId}
+        [HttpDelete("remove/{productId}")]
+        public async Task<IActionResult> RemoveProduct(string productId)
+        {
+            var vendorId = GetVendorId();
+            if (vendorId == null)
+                return Unauthorized(new { status = "error", message = "Please log in first" });
+
+            var response = await _httpClient.DeleteAsync($"{_iiBaseUrl}/vendor_inventory/remove_item?productId={productId}&vendorId={vendorId}");
+
+            if (!response.IsSuccessStatusCode)
+                return StatusCode(502, new { status = "error", message = "Failed to remove from Inventory Intelligence" });
+
+            return Ok(new { status = "success", message = "Product removed successfully" });
         }
 
 
