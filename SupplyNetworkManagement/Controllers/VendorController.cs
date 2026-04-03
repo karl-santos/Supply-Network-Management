@@ -65,7 +65,9 @@ namespace SupplyNetworkManagement.Controllers
 
             if (vendor.Password != login.Password)
                 return Unauthorized("Invalid password");
-           
+
+            HttpContext.Session.SetInt32("VendorId", vendor.VendorId);
+
             return Ok("Login successful");
         }
     }

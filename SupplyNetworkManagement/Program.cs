@@ -12,6 +12,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<MyDbContext>(options =>
     options.UseSqlite(connectionString));
 
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 // 3. Automatically create/update the database on startup
@@ -20,6 +29,9 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<MyDbContext>();
     db.Database.Migrate();
 }
+
+app.UseSession();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
