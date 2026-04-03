@@ -98,6 +98,23 @@ namespace SupplyNetworkManagement.Controllers
             return Ok(data);
         }
 
+        // GET /api/catalogue/product/{productId}
+        [HttpGet("product/{productId}")]
+        public async Task<IActionResult> GetProduct(string productId)
+        {
+            var vendorId = GetVendorId();
+            if (vendorId == null)
+                return Unauthorized(new { status = "error", message = "Please log in first" });
+
+            var response = await _httpClient.GetAsync($"{_iiBaseUrl}/vendor_inventory/vendor_records?productId={productId}");
+
+            if (!response.IsSuccessStatusCode)
+                return StatusCode(502, new { status = "error", message = "Failed to fetch product from Inventory Intelligence" });
+
+            var data = await response.Content.ReadAsStringAsync();
+            return Ok(data);
+        }
+
 
 
 
