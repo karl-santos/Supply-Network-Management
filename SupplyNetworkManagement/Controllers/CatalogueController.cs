@@ -80,7 +80,23 @@ namespace SupplyNetworkManagement.Controllers
             });
         }
 
+        // GET /api/catalogue
+        [HttpGet]
+        public async Task<IActionResult> GetAllProducts()
+        {
+            var vendorId = GetVendorId();
+            if (vendorId == null)
+                return Unauthorized(new { status = "error", message = "Please log in first" });
 
+            // Pull from II
+            var response = await _httpClient.GetAsync($"{_iiBaseUrl}/vendor_inventory/vendor_records?vendorId={vendorId}");
+
+            if (!response.IsSuccessStatusCode)
+                return StatusCode(502, new { status = "error", message = "Failed to fetch from Inventory Intelligence" });
+
+            var data = await response.Content.ReadAsStringAsync();
+            return Ok(data);
+        }
 
 
 
