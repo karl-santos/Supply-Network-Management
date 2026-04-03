@@ -52,5 +52,21 @@ namespace SupplyNetworkManagement.Controllers
         public void Delete(int id)
         {
         }
+
+        // POST /api/vendor/login
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] Vendor login)
+        {
+            var vendor = m_db.Vendors
+                .FirstOrDefault(v => v.Email == login.Email);
+
+            if (vendor == null)
+                return NotFound("Vendor not found");
+
+            if (vendor.Password != login.Password)
+                return Unauthorized("Invalid password");
+           
+            return Ok("Login successful");
+        }
     }
 }

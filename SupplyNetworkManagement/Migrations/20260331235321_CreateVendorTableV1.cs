@@ -19,7 +19,10 @@ namespace SupplyNetworkManagement.Migrations
                 {
                     VendorId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    VendorName = table.Column<string>(type: "TEXT", nullable: false)
+                    VendorName = table.Column<string>(type: "TEXT", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: false),
+                    Password = table.Column<string>(type: "TEXT", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
