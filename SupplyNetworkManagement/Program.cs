@@ -1,19 +1,19 @@
 using Microsoft.EntityFrameworkCore;
-using SupplyNetworkManagement.Data; // 1. Add this namespace
+using SupplyNetworkManagement.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-// 2. Register your DbContext with SQLite
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MyDbContext>(options =>
     options.UseSqlite(connectionString));
 
-builder.Services.AddDistributedMemoryCache();
+builder.Services.AddHttpClient();
 
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -23,7 +23,6 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// 3. Automatically create/update the database on startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<MyDbContext>();
@@ -32,18 +31,15 @@ using (var scope = app.Services.CreateScope())
 
 app.UseSession();
 
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles();
-
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
