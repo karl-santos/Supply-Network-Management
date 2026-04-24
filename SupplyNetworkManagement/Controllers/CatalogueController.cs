@@ -12,7 +12,7 @@ namespace SupplyNetworkManagement.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly MyDbContext _db;
-        private readonly string _iiBaseUrl = "http://localhost:5180/api/inventory_intelligence";
+        private readonly string _iiBaseUrl = "http://134.122.40.121:5180/api/inventory_intelligence";
 
         public CatalogueController(IHttpClientFactory httpClientFactory, MyDbContext db)
         {

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SupplyNetworkManagement.Data;
+using System.Text;
+using System.Text.Json;
 
 namespace SupplyNetworkManagement.Controllers
 {
@@ -8,9 +10,13 @@ namespace SupplyNetworkManagement.Controllers
     public class VendorController : ControllerBase
     {
         private readonly MyDbContext m_db;
-        public VendorController(MyDbContext db)
+        private readonly HttpClient _httpClient;
+        private readonly string _iiBaseUrl = "http://134.122.40.121:5180/api/inventory_intelligence";
+
+        public VendorController(MyDbContext db, IHttpClientFactory httpClientFactory)
         {
             m_db = db;
+            _httpClient = httpClientFactory.CreateClient();
         }
 
         [HttpGet]
@@ -28,10 +34,29 @@ namespace SupplyNetworkManagement.Controllers
         }
 
         [HttpPost]
-        public void Post([FromBody] Vendor v)
+        public async Task<IActionResult> Post([FromBody] Vendor v)
         {
+            // Save vendor to DB
             m_db.Vendors.Add(v);
             m_db.SaveChanges();
+
+            // Register vendor with Inventory Intelligence
+            var iiPayload = new
+            {
+                id = v.VendorId,
+                name = v.VendorName,
+                email = v.Email,
+                dominant_product = ""
+            };
+
+            var json = JsonSerializer.Serialize(iiPayload);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{_iiBaseUrl}/vender_inventory/register_vendor", content);
+
+            if (!response.IsSuccessStatusCode)
+                return StatusCode(502, new { status = "error", message = "Vendor saved but failed to register with Inventory Intelligence" });
+
+            return Ok(new { status = "success", message = "Vendor registered successfully" });
         }
 
         [HttpPut("{id}")]
