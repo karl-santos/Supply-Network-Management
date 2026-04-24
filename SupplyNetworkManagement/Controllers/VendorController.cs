@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SupplyNetworkManagement.Data;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace SupplyNetworkManagement.Controllers
 {
     [Route("api/[controller]")]
@@ -15,16 +13,13 @@ namespace SupplyNetworkManagement.Controllers
             m_db = db;
         }
 
-        // GET: api/Vendor
         [HttpGet]
         public ActionResult<IEnumerable<Vendor>> Get()
         {
-            
             var vendors = m_db.Vendors.ToList();
             return Ok(vendors);
         }
 
-        // GET api/Vendor/id#
         [HttpGet("{id}")]
         public ActionResult<Vendor> Get(int id)
         {
@@ -32,43 +27,36 @@ namespace SupplyNetworkManagement.Controllers
             return Ok(v);
         }
 
-        // POST api/Vendor
         [HttpPost]
-        public void Post([FromBody]Vendor v)
+        public void Post([FromBody] Vendor v)
         {
-        
             m_db.Vendors.Add(v);
             m_db.SaveChanges();
         }
 
-        // PUT api/Vendor/
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
+        public void Put(int id, [FromBody] string value) { }
 
-        // DELETE api/Vendor/
         [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        public void Delete(int id) { }
 
-        // POST /api/vendor/login
         [HttpPost("login")]
         public IActionResult Login([FromBody] Vendor login)
         {
-            var vendor = m_db.Vendors
-                .FirstOrDefault(v => v.Email == login.Email);
-
+            var vendor = m_db.Vendors.FirstOrDefault(v => v.Email == login.Email);
             if (vendor == null)
                 return NotFound("Vendor not found");
-
             if (vendor.Password != login.Password)
                 return Unauthorized("Invalid password");
-
             HttpContext.Session.SetInt32("VendorId", vendor.VendorId);
-
             return Ok("Login successful");
+        }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return Ok("Logged out successfully");
         }
     }
 }

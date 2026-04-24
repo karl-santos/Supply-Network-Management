@@ -1,366 +1,545 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Vendor Login · Supply Network Management</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --evergreen:       #17301c;
-      --muted-teal:      #83b692;
-      --midnight-violet: #310a31;
-      --thistle:         #d6c3c9;
-      --twilight-indigo: #414066;
-      --bg:              #f7f5f2;
-      --surface:         #ffffff;
-      --text:            #1a1a1a;
-      --text-muted:      #6b7280;
-      --border:          #e2ddd8;
-      --error:           #c0392b;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vendor Login · Supply Network Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --evergreen: #17301c;
+            --muted-teal: #83b692;
+            --midnight-violet: #310a31;
+            --thistle: #d6c3c9;
+            --twilight-indigo: #414066;
+            --bg: #f7f5f2;
+            --surface: #ffffff;
+            --text: #1a1a1a;
+            --text-muted: #6b7280;
+            --border: #e2ddd8;
+            --error: #c0392b;
+        }
 
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-    }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    header {
-      background: var(--evergreen);
-      padding: 0 2rem;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 64px;
-      position: sticky; top: 0; z-index: 100;
-      box-shadow: 0 2px 12px rgba(0,0,0,.25);
-    }
-    .logo { display: flex; align-items: center; gap: .75rem; text-decoration: none; }
-    .logo-icon {
-      width: 32px; height: 32px; background: var(--muted-teal);
-      border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;
-    }
-    .logo-text { font-family: 'DM Serif Display', serif; font-size: 1.15rem; color: #fff; }
-    nav { display: flex; gap: .25rem; align-items: center; }
-    nav a {
-      color: rgba(255,255,255,.75); text-decoration: none;
-      font-size: .875rem; font-weight: 500;
-      padding: .45rem .9rem; border-radius: 6px;
-      transition: color .2s, background .2s;
-    }
-    nav a:hover { color: #fff; background: rgba(255,255,255,.1); }
-    nav a.active { color: #fff; background: rgba(255,255,255,.12); }
-    nav a.cta { background: var(--muted-teal); color: var(--evergreen); font-weight: 600; margin-left: .5rem; }
-    nav a.cta:hover { background: #96c5a3; }
+        header {
+            background: var(--evergreen);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,.25);
+        }
 
-    /* ── MAIN ── */
-    .page {
-      flex: 1;
-      display: flex; align-items: center; justify-content: center;
-      padding: 3rem 1.5rem;
-      background: var(--bg);
-    }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            text-decoration: none;
+        }
 
-    .login-wrap {
-      width: 100%; max-width: 420px;
-      animation: slideUp .45s ease both;
-    }
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--muted-teal);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
 
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+        .logo-text {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.15rem;
+            color: #fff;
+        }
 
-    .login-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
+        nav {
+            display: flex;
+            gap: .25rem;
+            align-items: center;
+        }
 
-    .login-avatar {
-      width: 64px; height: 64px;
-      background: var(--evergreen); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 26px;
-      margin: 0 auto 1.25rem;
-      box-shadow: 0 4px 18px rgba(23,48,28,.22);
-    }
+            nav a {
+                color: rgba(255,255,255,.75);
+                text-decoration: none;
+                font-size: .875rem;
+                font-weight: 500;
+                padding: .45rem .9rem;
+                border-radius: 6px;
+                transition: color .2s, background .2s;
+            }
 
-    .login-header h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.75rem; color: var(--evergreen);
-    }
-    .login-header p { font-size: .875rem; color: var(--text-muted); margin-top: .3rem; }
+                nav a:hover {
+                    color: #fff;
+                    background: rgba(255,255,255,.1);
+                }
 
-    /* ── CARD ── */
-    .form-card {
-      background: var(--surface);
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      padding: 2.25rem;
-      box-shadow: 0 4px 24px rgba(0,0,0,.07);
-    }
+                nav a.active {
+                    color: #fff;
+                    background: rgba(255,255,255,.12);
+                }
 
-    .field-group { display: flex; flex-direction: column; gap: 1.25rem; }
-    .field { display: flex; flex-direction: column; gap: .45rem; }
-    label {
-      font-size: .8rem; font-weight: 600;
-      letter-spacing: .03em; text-transform: uppercase;
-      color: var(--twilight-indigo);
-    }
+                nav a.cta {
+                    background: var(--muted-teal);
+                    color: var(--evergreen);
+                    font-weight: 600;
+                    margin-left: .5rem;
+                }
 
-    .input-wrap { position: relative; display: flex; align-items: center; }
-    .input-icon {
-      position: absolute; left: 14px;
-      font-size: 15px; color: var(--text-muted); pointer-events: none;
-    }
+                    nav a.cta:hover {
+                        background: #96c5a3;
+                    }
 
-    input[type="email"],
-    input[type="password"] {
-      width: 100%;
-      padding: .75rem .9rem .75rem 2.65rem;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .925rem;
-      background: var(--bg);
-      border: 1.5px solid var(--border);
-      border-radius: 10px; color: var(--text);
-      transition: border-color .2s, box-shadow .2s, background .2s;
-      outline: none;
-    }
-    input:focus { border-color: var(--muted-teal); background: #fff; box-shadow: 0 0 0 3px rgba(131,182,146,.18); }
-    input.invalid { border-color: var(--error); box-shadow: 0 0 0 3px rgba(192,57,43,.12); }
+        /* ── MAIN ── */
+        .page {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1.5rem;
+            background: var(--bg);
+        }
 
-    .field-error { font-size: .78rem; color: var(--error); min-height: 1rem; }
+        .login-wrap {
+            width: 100%;
+            max-width: 420px;
+            animation: slideUp .45s ease both;
+        }
 
-    .password-toggle {
-      position: absolute; right: 12px;
-      background: none; border: none; cursor: pointer;
-      font-size: 14px; color: var(--text-muted); padding: 4px;
-      transition: color .2s;
-    }
-    .password-toggle:hover { color: var(--evergreen); }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
 
-    .submit-row { margin-top: 1.75rem; display: flex; flex-direction: column; gap: .85rem; }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-    .btn-submit {
-      width: 100%; padding: .9rem;
-      background: var(--muted-teal); color: var(--evergreen);
-      font-family: 'DM Sans', sans-serif;
-      font-size: .95rem; font-weight: 600;
-      border: none; border-radius: 10px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: .5rem;
-      transition: background .2s, transform .15s, box-shadow .2s;
-    }
-    .btn-submit:hover:not(:disabled) {
-      background: #96c5a3; transform: translateY(-1px);
-      box-shadow: 0 4px 18px rgba(131,182,146,.35);
-    }
-    .btn-submit:disabled { opacity: .6; cursor: not-allowed; }
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
 
-    .spinner {
-      width: 18px; height: 18px;
-      border: 2px solid rgba(23,48,28,.25);
-      border-top-color: var(--evergreen);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      display: none;
-    }
-    .btn-submit.loading .spinner { display: block; }
-    .btn-submit.loading .btn-label { display: none; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+        .login-avatar {
+            width: 64px;
+            height: 64px;
+            background: var(--evergreen);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin: 0 auto 1.25rem;
+            box-shadow: 0 4px 18px rgba(23,48,28,.22);
+        }
 
-    .banner {
-      display: none; border-radius: 10px;
-      padding: .9rem 1.1rem; font-size: .875rem; font-weight: 500;
-      align-items: center; gap: .6rem;
-    }
-    .banner.show { display: flex; }
-    .banner.success { background: rgba(131,182,146,.18); border: 1px solid rgba(131,182,146,.4); color: var(--evergreen); }
-    .banner.error   { background: rgba(192,57,43,.08);  border: 1px solid rgba(192,57,43,.25);  color: var(--error); }
+        .login-header h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.75rem;
+            color: var(--evergreen);
+        }
 
-    .register-prompt {
-      text-align: center;
-      margin-top: 1.5rem;
-      font-size: .85rem; color: var(--text-muted);
-    }
-    .register-prompt a { color: var(--twilight-indigo); font-weight: 600; text-decoration: none; }
-    .register-prompt a:hover { text-decoration: underline; }
+        .login-header p {
+            font-size: .875rem;
+            color: var(--text-muted);
+            margin-top: .3rem;
+        }
 
-    footer {
-      background: var(--evergreen);
-      padding: 1.25rem 2rem;
-      text-align: center;
-      color: rgba(255,255,255,.4); font-size: .8rem;
-    }
-    footer a { color: var(--muted-teal); text-decoration: none; }
+        /* ── CARD ── */
+        .form-card {
+            background: var(--surface);
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            padding: 2.25rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,.07);
+        }
 
-    @media (max-width: 520px) {
-      nav a:not(.mobile-show) { display: none; }
-    }
-  </style>
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: .45rem;
+        }
+
+        label {
+            font-size: .8rem;
+            font-weight: 600;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+            color: var(--twilight-indigo);
+        }
+
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            font-size: 15px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: .75rem .9rem .75rem 2.65rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .925rem;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            transition: border-color .2s, box-shadow .2s, background .2s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--muted-teal);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(131,182,146,.18);
+        }
+
+        input.invalid {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(192,57,43,.12);
+        }
+
+        .field-error {
+            font-size: .78rem;
+            color: var(--error);
+            min-height: 1rem;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-muted);
+            padding: 4px;
+            transition: color .2s;
+        }
+
+            .password-toggle:hover {
+                color: var(--evergreen);
+            }
+
+        .submit-row {
+            margin-top: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: .85rem;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: .9rem;
+            background: var(--muted-teal);
+            color: var(--evergreen);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .95rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            transition: background .2s, transform .15s, box-shadow .2s;
+        }
+
+            .btn-submit:hover:not(:disabled) {
+                background: #96c5a3;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 18px rgba(131,182,146,.35);
+            }
+
+            .btn-submit:disabled {
+                opacity: .6;
+                cursor: not-allowed;
+            }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(23,48,28,.25);
+            border-top-color: var(--evergreen);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            display: none;
+        }
+
+        .btn-submit.loading .spinner {
+            display: block;
+        }
+
+        .btn-submit.loading .btn-label {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .banner {
+            display: none;
+            border-radius: 10px;
+            padding: .9rem 1.1rem;
+            font-size: .875rem;
+            font-weight: 500;
+            align-items: center;
+            gap: .6rem;
+        }
+
+            .banner.show {
+                display: flex;
+            }
+
+            .banner.success {
+                background: rgba(131,182,146,.18);
+                border: 1px solid rgba(131,182,146,.4);
+                color: var(--evergreen);
+            }
+
+            .banner.error {
+                background: rgba(192,57,43,.08);
+                border: 1px solid rgba(192,57,43,.25);
+                color: var(--error);
+            }
+
+        .register-prompt {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: .85rem;
+            color: var(--text-muted);
+        }
+
+            .register-prompt a {
+                color: var(--twilight-indigo);
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+                .register-prompt a:hover {
+                    text-decoration: underline;
+                }
+
+        footer {
+            background: var(--evergreen);
+            padding: 1.25rem 2rem;
+            text-align: center;
+            color: rgba(255,255,255,.4);
+            font-size: .8rem;
+        }
+
+            footer a {
+                color: var(--muted-teal);
+                text-decoration: none;
+            }
+
+        @media (max-width: 520px) {
+            nav a:not(.mobile-show) {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <header>
-    <a class="logo" href="/">
-      <div class="logo-icon">🌿</div>
-      <span class="logo-text">SupplyNet</span>
-    </a>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/vendors.html">Vendors</a>
-      <a href="/login.html" class="active mobile-show">Login</a>
-      <a href="/register.html" class="cta">Register</a>
-    </nav>
-  </header>
+    <header>
+        <a class="logo" href="/">
+            <div class="logo-icon">🌿</div>
+            <span class="logo-text">SupplyNet</span>
+        </a>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/vendors.html">Vendors</a>
+            <a href="/suppliers.html">My Catalogue</a>
+            <a href="/login.html" class="active mobile-show">Login</a>
+            <a href="/register.html" class="cta">Register</a>
+        </nav>
+    </header>
 
-  <main class="page">
-    <div class="login-wrap">
+    <main class="page">
+        <div class="login-wrap">
 
-      <div class="login-header">
-        <div class="login-avatar">🌿</div>
-        <h1>Vendor Login</h1>
-        <p>Sign in to your Supply Network account</p>
-      </div>
-
-      <div class="form-card">
-        <div class="field-group">
-
-          <div class="field">
-            <label for="email">Email Address</label>
-            <div class="input-wrap">
-              <span class="input-icon">✉️</span>
-              <input type="email" id="email" placeholder="vendor@example.com" autocomplete="email"/>
+            <div class="login-header">
+                <div class="login-avatar">🌿</div>
+                <h1>Vendor Login</h1>
+                <p>Sign in to your Supply Network account</p>
             </div>
-            <span class="field-error" id="emailErr"></span>
-          </div>
 
-          <div class="field">
-            <label for="password">Password</label>
-            <div class="input-wrap">
-              <span class="input-icon">🔒</span>
-              <input type="password" id="password" placeholder="Your password" autocomplete="current-password"/>
-              <button class="password-toggle" type="button" id="togglePwd" aria-label="Toggle password visibility">👁️</button>
+            <div class="form-card">
+                <div class="field-group">
+
+                    <div class="field">
+                        <label for="email">Email Address</label>
+                        <div class="input-wrap">
+                            <span class="input-icon">✉️</span>
+                            <input type="email" id="email" placeholder="vendor@example.com" autocomplete="email" />
+                        </div>
+                        <span class="field-error" id="emailErr"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="password">Password</label>
+                        <div class="input-wrap">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="password" placeholder="Your password" autocomplete="current-password" />
+                            <button class="password-toggle" type="button" id="togglePwd" aria-label="Toggle password visibility">👁️</button>
+                        </div>
+                        <span class="field-error" id="passwordErr"></span>
+                    </div>
+
+                </div>
+
+                <div class="submit-row">
+                    <div class="banner" id="globalBanner"></div>
+                    <button class="btn-submit" id="submitBtn" type="button">
+                        <span class="btn-label">Sign In</span>
+                        <div class="spinner"></div>
+                    </button>
+                </div>
             </div>
-            <span class="field-error" id="passwordErr"></span>
-          </div>
+
+            <p class="register-prompt">Don't have an account? <a href="/register.html">Register as a vendor →</a></p>
 
         </div>
+    </main>
 
-        <div class="submit-row">
-          <div class="banner" id="globalBanner"></div>
-          <button class="btn-submit" id="submitBtn" type="button">
-            <span class="btn-label">Sign In</span>
-            <div class="spinner"></div>
-          </button>
-        </div>
-      </div>
+    <footer>
+        Supply Network Management &nbsp;·&nbsp; <a href="/register.html">Register Vendor</a> &nbsp;·&nbsp; <a href="/vendors.html">View Vendors</a>
+    </footer>
 
-      <p class="register-prompt">Don't have an account? <a href="/register.html">Register as a vendor →</a></p>
+    <script>
+        const API_BASE = '';
 
-    </div>
-  </main>
+        const $ = id => document.getElementById(id);
 
-  <footer>
-    Supply Network Management &nbsp;·&nbsp; <a href="/register.html">Register Vendor</a> &nbsp;·&nbsp; <a href="/vendors.html">View Vendors</a>
-  </footer>
+        function setError(fieldId, msg) {
+            const el = $(fieldId + 'Err');
+            const input = $(fieldId);
+            if (el) el.textContent = msg ? '⚠ ' + msg : '';
+            if (input) input.classList.toggle('invalid', !!msg);
+        }
 
-  <script>
-    const API_BASE = '';
+        function clearErrors() {
+            ['email', 'password'].forEach(f => setError(f, ''));
+        }
 
-    const $ = id => document.getElementById(id);
+        function showBanner(msg, type = 'error') {
+            const b = $('globalBanner');
+            b.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+            b.className = 'banner ' + type + ' show';
+        }
 
-    function setError(fieldId, msg) {
-      const el = $(fieldId + 'Err');
-      const input = $(fieldId);
-      if (el)    el.textContent = msg ? '⚠ ' + msg : '';
-      if (input) input.classList.toggle('invalid', !!msg);
-    }
+        function setLoading(loading) {
+            const btn = $('submitBtn');
+            btn.disabled = loading;
+            btn.classList.toggle('loading', loading);
+        }
 
-    function clearErrors() {
-      ['email','password'].forEach(f => setError(f, ''));
-    }
+        function validate() {
+            let ok = true;
+            const email = $('email').value.trim();
+            const pwd = $('password').value;
+            if (!email) { setError('email', 'Email is required'); ok = false; }
+            if (!pwd) { setError('password', 'Password is required'); ok = false; }
+            return ok;
+        }
 
-    function showBanner(msg, type = 'error') {
-      const b = $('globalBanner');
-      b.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
-      b.className = 'banner ' + type + ' show';
-    }
+        async function handleLogin() {
+            clearErrors();
+            $('globalBanner').className = 'banner';
 
-    function setLoading(loading) {
-      const btn = $('submitBtn');
-      btn.disabled = loading;
-      btn.classList.toggle('loading', loading);
-    }
+            if (!validate()) return;
 
-    function validate() {
-      let ok = true;
-      const email = $('email').value.trim();
-      const pwd   = $('password').value;
-      if (!email) { setError('email', 'Email is required'); ok = false; }
-      if (!pwd)   { setError('password', 'Password is required'); ok = false; }
-      return ok;
-    }
+            const payload = {
+                email: $('email').value.trim(),
+                password: $('password').value,
+            };
 
-    async function handleLogin() {
-      clearErrors();
-      $('globalBanner').className = 'banner';
+            setLoading(true);
 
-      if (!validate()) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/vendor/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
 
-      const payload = {
-        email:    $('email').value.trim(),
-        password: $('password').value,
-      };
+                if (res.ok) {
+                    showBanner('Login successful! Redirecting…', 'success');
+                    setTimeout(() => { window.location.href = '/suppliers.html'; }, 1500);
+                } else if (res.status === 404) {
+                    setError('email', 'No account found with this email');
+                } else if (res.status === 401) {
+                    setError('password', 'Incorrect password');
+                } else {
+                    const text = await res.text().catch(() => '');
+                    showBanner(text || `Error ${res.status}. Please try again.`);
+                }
+            } catch (err) {
+                showBanner('Could not connect to the server. Is the API running?');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        }
 
-      setLoading(true);
-
-      try {
-        const res = await fetch(`${API_BASE}/api/vendor/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+        $('submitBtn').addEventListener('click', handleLogin);
+        ['email', 'password'].forEach(id => {
+            $(id).addEventListener('input', () => setError(id, ''));
+        });
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
         });
 
-        if (res.ok) {
-          showBanner('Login successful! Redirecting…', 'success');
-          // TODO: redirect to dashboard when built
-          setTimeout(() => { window.location.href = '/vendors.html'; }, 1500);
-        } else if (res.status === 404) {
-          setError('email', 'No account found with this email');
-        } else if (res.status === 401) {
-          setError('password', 'Incorrect password');
-        } else {
-          const text = await res.text().catch(() => '');
-          showBanner(text || `Error ${res.status}. Please try again.`);
-        }
-      } catch (err) {
-        showBanner('Could not connect to the server. Is the API running?');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    $('submitBtn').addEventListener('click', handleLogin);
-    ['email','password'].forEach(id => {
-      $(id).addEventListener('input', () => setError(id, ''));
-    });
-    document.querySelectorAll('input').forEach(input => {
-      input.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
-    });
-
-    $('togglePwd').addEventListener('click', () => {
-      const inp = $('password');
-      const isText = inp.type === 'text';
-      inp.type = isText ? 'password' : 'text';
-      $('togglePwd').textContent = isText ? '👁️' : '🙈';
-    });
-  </script>
+        $('togglePwd').addEventListener('click', () => {
+            const inp = $('password');
+            const isText = inp.type === 'text';
+            inp.type = isText ? 'password' : 'text';
+            $('togglePwd').textContent = isText ? '👁️' : '🙈';
+        });
+    </script>
 
 </body>
 </html>

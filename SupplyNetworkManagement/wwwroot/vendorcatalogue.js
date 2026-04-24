@@ -1,3 +1,15 @@
+// Category tree: L1 -> L2 options
+const CATEGORY_MAP = {
+    "Produce": ["Fruit", "Vegetables"],
+    "Meat": ["Beef", "Venison", "Pork", "Chicken", "Deli"],
+    "Fish/Seafood": ["Fish", "Seafood"],
+    "Dairy": ["Dairy"],
+    "Grains": ["Bread and Pastry", "Pasta", "Rice", "Cereal", "Canned Goods"],
+    "Misc": ["Spices", "Condiments", "Snacks", "Baking", "Frozen Foods"]
+};
+
+const VALID_UNITS = ["kg", "lbs", "l", "ml", "bundle", "punnet", "bag"];
+
 const messageBox = document.getElementById("messageBox");
 const catalogueBody = document.getElementById("catalogueBody");
 const searchInput = document.getElementById("searchInput");
@@ -32,6 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("editProductForm")?.addEventListener("submit", updateProduct);
     searchInput?.addEventListener("input", filterCatalogue);
 
+    // Wire up cascading dropdowns
+    document.getElementById("addCategoryL1")?.addEventListener("change", () => {
+        populateL2("addCategoryL1", "addCategoryL2");
+    });
+    document.getElementById("editCategoryL1")?.addEventListener("change", () => {
+        populateL2("editCategoryL1", "editCategoryL2");
+    });
+
     detailEditBtn?.addEventListener("click", () => {
         if (!selectedProductId) return;
         fillEditForm(selectedProductId);
@@ -46,6 +66,28 @@ document.addEventListener("DOMContentLoaded", () => {
     showSection("create");
     loadCatalogue();
 });
+
+// Populates L2 dropdown based on selected L1
+function populateL2(l1Id, l2Id, selectedValue = "") {
+    const l1Select = document.getElementById(l1Id);
+    const l2Select = document.getElementById(l2Id);
+    if (!l1Select || !l2Select) return;
+
+    const l1Val = l1Select.value;
+    const options = CATEGORY_MAP[l1Val] || [];
+
+    if (!l1Val || options.length === 0) {
+        l2Select.innerHTML = `<option value="">Select Level 1 first</option>`;
+        l2Select.disabled = true;
+        return;
+    }
+
+    l2Select.disabled = false;
+    l2Select.innerHTML = `<option value="">Select Sub-Category</option>` +
+        options.map(opt =>
+            `<option value="${opt}" ${opt === selectedValue ? "selected" : ""}>${opt}</option>`
+        ).join("");
+}
 
 function showSection(section) {
     createSection?.classList.add("hidden");
@@ -126,8 +168,8 @@ async function addProduct(event) {
 
     const payload = {
         productName: document.getElementById("addProductName").value.trim(),
-        categoryL1: document.getElementById("addCategoryL1").value.trim(),
-        categoryL2: document.getElementById("addCategoryL2").value.trim(),
+        categoryL1: document.getElementById("addCategoryL1").value,
+        categoryL2: document.getElementById("addCategoryL2").value,
         categoryL3: document.getElementById("addCategoryL3").value.trim(),
         unit: document.getElementById("addUnit").value,
         quantity: parseInt(document.getElementById("addQuantity").value, 10),
@@ -153,10 +195,12 @@ async function addProduct(event) {
             throw new Error(data?.message || "Failed to add product.");
         }
 
+        // Reset form and cascading dropdowns
         document.getElementById("addProductForm").reset();
         document.getElementById("addPrice").value = "0.00";
-        showMessage(data?.message || "Product added successfully.", false);
+        populateL2("addCategoryL1", "addCategoryL2");
 
+        showMessage(data?.message || "Product added successfully.", false);
         await loadCatalogue();
         showSection("browse");
     } catch (error) {
@@ -175,8 +219,8 @@ async function updateProduct(event) {
 
     const payload = {
         productName: document.getElementById("editProductName").value.trim(),
-        categoryL1: document.getElementById("editCategoryL1").value.trim(),
-        categoryL2: document.getElementById("editCategoryL2").value.trim(),
+        categoryL1: document.getElementById("editCategoryL1").value,
+        categoryL2: document.getElementById("editCategoryL2").value,
         categoryL3: document.getElementById("editCategoryL3").value.trim(),
         unit: document.getElementById("editUnit").value,
         quantity: parseInt(document.getElementById("editQuantity").value, 10),
@@ -294,12 +338,15 @@ function fillEditForm(productId) {
 
     document.getElementById("editProductId").value = product.productId || "";
     document.getElementById("editProductName").value = product.productName || "";
-    document.getElementById("editCategoryL1").value = product.categoryL1 || "";
-    document.getElementById("editCategoryL2").value = product.categoryL2 || "";
     document.getElementById("editCategoryL3").value = product.categoryL3 || "";
     document.getElementById("editUnit").value = product.unit || "";
     document.getElementById("editQuantity").value = product.quantity || "";
     document.getElementById("editPrice").value = Number(product.price || 0).toFixed(2);
+
+    // Set L1 first, then populate and set L2
+    const l1Select = document.getElementById("editCategoryL1");
+    if (l1Select) l1Select.value = product.categoryL1 || "";
+    populateL2("editCategoryL1", "editCategoryL2", product.categoryL2 || "");
 }
 
 function clearEditFormIfMatches(productId) {
@@ -307,6 +354,7 @@ function clearEditFormIfMatches(productId) {
     if (currentId === productId) {
         document.getElementById("editProductForm").reset();
         document.getElementById("editPrice").value = "0.00";
+        populateL2("editCategoryL1", "editCategoryL2");
     }
 }
 
@@ -346,7 +394,7 @@ function validateProductPayload(payload) {
     if (!payload.categoryL2) return "Category Level 2 is required.";
     if (!payload.categoryL3) return "Category Level 3 is required.";
     if (!payload.unit) return "Unit is required.";
-    if (payload.unit !== "kg" && payload.unit !== "l") return "Unit must be either kg or l.";
+    if (!VALID_UNITS.includes(payload.unit)) return `Unit must be one of: ${VALID_UNITS.join(", ")}.`;
     if (!Number.isFinite(payload.quantity) || payload.quantity <= 0) return "Quantity must be greater than 0.";
     if (!Number.isFinite(payload.price) || payload.price < 0) return "Price cannot be negative.";
     return null;

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using SupplyNetworkManagement.Data;
 using SupplyNetworkManagement.Models;
 using System.Text;
 using System.Text.Json;
-
 
 namespace SupplyNetworkManagement.Controllers
 {
@@ -11,49 +11,49 @@ namespace SupplyNetworkManagement.Controllers
     public class CatalogueController : ControllerBase
     {
         private readonly HttpClient _httpClient;
+        private readonly MyDbContext _db;
         private readonly string _iiBaseUrl = "http://localhost:5180/api/inventory_intelligence";
 
-
-
-        public CatalogueController(IHttpClientFactory httpClientFactory)
+        public CatalogueController(IHttpClientFactory httpClientFactory, MyDbContext db)
         {
             _httpClient = httpClientFactory.CreateClient();
+            _db = db;
         }
 
-        // Helper to get vendorId from session
-        private int? GetVendorId()
+        // Resolves vendorName from session VendorId via DB
+        private string? GetVendorName()
         {
-            return HttpContext.Session.GetInt32("VendorId");
+            var vendorId = HttpContext.Session.GetInt32("VendorId");
+            if (vendorId == null) return null;
+
+            var vendor = _db.Vendors.FirstOrDefault(v => v.VendorId == vendorId);
+            return vendor?.VendorName;
         }
 
+        private static readonly string[] ValidUnits = { "kg", "lbs", "bundle", "punnet", "bag", "l", "ml" };
 
         // POST /api/catalogue/add
         [HttpPost("add")]
         public async Task<IActionResult> AddProduct([FromBody] ProductRequest request)
         {
-            var vendorId = GetVendorId();
-            if (vendorId == null)
+            var vendorName = GetVendorName();
+            if (vendorName == null)
                 return Unauthorized(new { status = "error", message = "Please log in first" });
 
-            // Validate unit
-            if (request.Unit != "kg" && request.Unit != "l")
-                return BadRequest(new { status = "error", message = "Unit must be kg or l" });
+            if (!ValidUnits.Contains(request.Unit))
+                return BadRequest(new { status = "error", message = $"Unit must be one of: {string.Join(", ", ValidUnits)}" });
 
-            // Validate quantity
             if (request.Quantity <= 0)
                 return BadRequest(new { status = "error", message = "Quantity must be greater than 0" });
 
-            // Validate price
             if (request.Price < 0)
                 return BadRequest(new { status = "error", message = "Price cannot be negative" });
 
-            // Generate productId
             var productId = "PROD-" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper();
 
-            // Build II payload
             var iiPayload = new
             {
-                vendorId = vendorId.ToString(),
+                vendorName = vendorName,
                 productId = productId,
                 productName = request.ProductName,
                 categoryL1 = request.CategoryL1,
@@ -64,7 +64,6 @@ namespace SupplyNetworkManagement.Controllers
                 price = request.Price
             };
 
-            // Push to II
             var json = JsonSerializer.Serialize(iiPayload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync($"{_iiBaseUrl}/vendor_inventory/add_item", content);
@@ -84,12 +83,11 @@ namespace SupplyNetworkManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllProducts()
         {
-            var vendorId = GetVendorId();
-            if (vendorId == null)
+            var vendorName = GetVendorName();
+            if (vendorName == null)
                 return Unauthorized(new { status = "error", message = "Please log in first" });
 
-            // Pull from II
-            var response = await _httpClient.GetAsync($"{_iiBaseUrl}/vendor_inventory/vendor_records?vendorId={vendorId}");
+            var response = await _httpClient.GetAsync($"{_iiBaseUrl}/vendor_inventory/vendor_records?vendorName={Uri.EscapeDataString(vendorName)}");
 
             if (!response.IsSuccessStatusCode)
                 return StatusCode(502, new { status = "error", message = "Failed to fetch from Inventory Intelligence" });
@@ -102,11 +100,12 @@ namespace SupplyNetworkManagement.Controllers
         [HttpGet("product/{productId}")]
         public async Task<IActionResult> GetProduct(string productId)
         {
-            var vendorId = GetVendorId();
-            if (vendorId == null)
+            var vendorName = GetVendorName();
+            if (vendorName == null)
                 return Unauthorized(new { status = "error", message = "Please log in first" });
 
-            var response = await _httpClient.GetAsync($"{_iiBaseUrl}/vendor_inventory/vendor_records?productId={productId}");
+            var response = await _httpClient.GetAsync(
+                $"{_iiBaseUrl}/vendor_inventory/vendor_records?vendorName={Uri.EscapeDataString(vendorName)}&productId={Uri.EscapeDataString(productId)}");
 
             if (!response.IsSuccessStatusCode)
                 return StatusCode(502, new { status = "error", message = "Failed to fetch product from Inventory Intelligence" });
@@ -119,25 +118,22 @@ namespace SupplyNetworkManagement.Controllers
         [HttpPatch("update/{productId}")]
         public async Task<IActionResult> UpdateProduct(string productId, [FromBody] UpdateProductRequest request)
         {
-            var vendorId = GetVendorId();
-            if (vendorId == null)
+            var vendorName = GetVendorName();
+            if (vendorName == null)
                 return Unauthorized(new { status = "error", message = "Please log in first" });
 
-            // Validate unit if provided
-            if (request.Unit != null && request.Unit != "kg" && request.Unit != "l")
-                return BadRequest(new { status = "error", message = "Unit must be kg or l" });
+            if (request.Unit != null && !ValidUnits.Contains(request.Unit))
+                return BadRequest(new { status = "error", message = $"Unit must be one of: {string.Join(", ", ValidUnits)}" });
 
-            // Validate quantity if provided
             if (request.Quantity != null && request.Quantity <= 0)
                 return BadRequest(new { status = "error", message = "Quantity must be greater than 0" });
 
-            // Validate price if provided
             if (request.Price != null && request.Price < 0)
                 return BadRequest(new { status = "error", message = "Price cannot be negative" });
 
             var iiPayload = new
             {
-                vendorId = vendorId.ToString(),
+                vendorName = vendorName,
                 productId = productId,
                 productName = request.ProductName,
                 categoryL1 = request.CategoryL1,
@@ -162,21 +158,17 @@ namespace SupplyNetworkManagement.Controllers
         [HttpDelete("remove/{productId}")]
         public async Task<IActionResult> RemoveProduct(string productId)
         {
-            var vendorId = GetVendorId();
-            if (vendorId == null)
+            var vendorName = GetVendorName();
+            if (vendorName == null)
                 return Unauthorized(new { status = "error", message = "Please log in first" });
 
-            var response = await _httpClient.DeleteAsync($"{_iiBaseUrl}/vendor_inventory/remove_item?productId={productId}&vendorId={vendorId}");
+            var response = await _httpClient.DeleteAsync(
+                $"{_iiBaseUrl}/vendor_inventory/remove_item?productId={Uri.EscapeDataString(productId)}&vendorName={Uri.EscapeDataString(vendorName)}");
 
             if (!response.IsSuccessStatusCode)
                 return StatusCode(502, new { status = "error", message = "Failed to remove from Inventory Intelligence" });
 
             return Ok(new { status = "success", message = "Product removed successfully" });
         }
-
-
-
-
     }
-
 }
